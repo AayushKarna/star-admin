@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import ApiService from '@/app/utils/apiService';
 import { useParams, useRouter } from 'next/navigation';
 
-interface Category {
+interface Tag {
   id: number;
   name: string;
   slug: string;
@@ -28,10 +28,10 @@ export default function ProductCategories() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await ApiService.get(`product-category/${slug}`);
+      const response = await ApiService.get(`tags/${slug}`);
 
       if (response.isSuccess) {
-        setName((response.data.data as Category)?.name || '');
+        setName((response.data.data as Tag)?.name || '');
       } else {
         setError(response.message || 'An unexpected error occurred.');
       }
@@ -43,14 +43,11 @@ export default function ProductCategories() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    const response = await ApiService.patch(
-      `product-category/${slug}`,
-      e.currentTarget
-    );
+    const response = await ApiService.patch(`tags/${slug}`, e.currentTarget);
     if (response.isSuccess) {
-      toast.success('Category edited successfully.');
+      toast.success('Tag edited successfully.');
       if (formRef.current) formRef.current.reset();
-      router.push(`/dashboard/product-categories/${response.data.data.slug}`);
+      router.push(`/dashboard/tags/${response.data.data.slug}`);
     } else {
       setError(response.message || 'An unexpected error occurred.');
     }
@@ -59,11 +56,11 @@ export default function ProductCategories() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Product Categories</h1>
+      <h1 className="text-2xl font-bold mb-4">Edit Tag</h1>
 
       <Card className="w-full max-w-sm mb-6">
         <CardHeader>
-          <CardTitle>Edit Category</CardTitle>
+          <CardTitle>Edit Tag</CardTitle>
         </CardHeader>
         <CardContent>
           <form ref={formRef} onSubmit={handleSubmit}>

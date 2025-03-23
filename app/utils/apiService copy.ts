@@ -14,46 +14,6 @@ class ApiService {
       : {};
   }
 
-  static async uploadFile<T = unknown>(file: File): Promise<ApiResponse<T>> {
-    try {
-      const formData = new FormData();
-      formData.append('files', file);
-      const response = await apiClient.post<T>('upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`
-        }
-      });
-
-      console.log(response.data);
-
-      return { isSuccess: true, data: response.data };
-    } catch (err) {
-      return this.handleError<T>(err);
-    }
-  }
-
-  static async uploadFiles<T = unknown>(
-    files: File[]
-  ): Promise<ApiResponse<T>> {
-    try {
-      const formData = new FormData();
-      [...files].forEach(file => formData.append('files', file));
-      const response = await apiClient.post<T>('upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`
-        }
-      });
-
-      console.log(response.data);
-
-      return { isSuccess: true, data: response.data };
-    } catch (err) {
-      return this.handleError<T>(err);
-    }
-  }
-
   static async get<T = unknown>(
     resource: string,
     sendAuthToken = false
@@ -139,7 +99,6 @@ class ApiService {
         `Error: ${errorResponse.response.status}`;
     }
 
-    console.error(err);
     return { isSuccess: false, data: undefined, message: errorMessage };
   }
 }

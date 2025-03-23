@@ -11,19 +11,19 @@ import { toast } from 'sonner';
 import ApiService from '@/app/utils/apiService';
 import { useRouter } from 'next/navigation';
 
-interface Category {
+interface Tag {
   id: number;
   name: string;
   slug: string;
 }
 
-const columns: { key: keyof Category; label: string; sortable: boolean }[] = [
+const columns: { key: keyof Tag; label: string; sortable: boolean }[] = [
   { key: 'id', label: 'ID', sortable: true },
   { key: 'name', label: 'Name', sortable: true }
 ];
 
-export default function ProductCategories() {
-  const [categories, setCategories] = useState<Category[]>([]);
+export default function Tag() {
+  const [tags, setTags] = useState<Tag[]>([]);
   const [tableError, setTableError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -33,9 +33,9 @@ export default function ProductCategories() {
   const router = useRouter();
 
   const fetchData = async () => {
-    const response = await ApiService.get('product-category');
+    const response = await ApiService.get('tags');
     if (response.isSuccess) {
-      setCategories(response.data.data);
+      setTags(response.data.data);
     } else {
       setTableError(response.message || 'An error occurred.');
     }
@@ -48,31 +48,26 @@ export default function ProductCategories() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    const response = await ApiService.post('product-category', e.currentTarget);
+    const response = await ApiService.post('tags', e.currentTarget);
     if (response.isSuccess) {
-      toast.success('Category added successfully.');
+      toast.success('Tag added successfully.');
       if (formRef.current) formRef.current.reset();
-      setCategories([...categories, response.data.data]);
-      setError(null);
+      setTags([...tags, response.data.data]);
     } else {
       setError(response.message || 'An error occurred.');
     }
     setIsLoading(false);
   };
 
-  const handleDelete = async (category: Category) => {
-    const confirmDelete = confirm(
-      'Are you sure you want to delete this category?'
-    );
+  const handleDelete = async (tag: Tag) => {
+    const confirmDelete = confirm('Are you sure you want to delete this tag?');
 
     if (!confirmDelete) return;
 
-    const response = await ApiService.delete(
-      `product-category/${category.slug}`
-    );
+    const response = await ApiService.delete(`tags/${tag.slug}`);
     if (response.isSuccess) {
-      setCategories(categories.filter(c => c.id !== category.id));
-      toast.success('Category deleted successfully.');
+      setTags(tags.filter(c => c.id !== tag.id));
+      toast.success('Tag deleted successfully.');
     } else {
       toast.error(response.message);
     }
@@ -80,11 +75,11 @@ export default function ProductCategories() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Product Categories</h1>
+      <h1 className="text-2xl font-bold mb-4">Tags</h1>
 
       <Card className="w-full max-w-sm mb-6">
         <CardHeader>
-          <CardTitle>Add new category</CardTitle>
+          <CardTitle>Add new tag</CardTitle>
         </CardHeader>
         <CardContent>
           <form ref={formRef} onSubmit={handleSubmit}>
@@ -94,7 +89,7 @@ export default function ProductCategories() {
               <Input id="name" type="text" name="name" required />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Loading...' : 'Submit'}
+              {isLoading ? 'Loading...' : 'Add'}
             </Button>
           </form>
         </CardContent>
@@ -102,17 +97,15 @@ export default function ProductCategories() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Current Categories</CardTitle>
+          <CardTitle>Current Tags</CardTitle>
         </CardHeader>
         <CardContent>
           {tableError && <AlertDestructive message={tableError} />}
           <DataTable
             columns={columns}
-            data={categories}
-            onEdit={categories =>
-              router.push(`/dashboard/product-categories/${categories.slug}`)
-            }
-            onDelete={categories => handleDelete(categories)}
+            data={tags}
+            onEdit={tag => router.push(`/dashboard/tags/${tag.slug}`)}
+            onDelete={tag => handleDelete(tag)}
           />
         </CardContent>
       </Card>

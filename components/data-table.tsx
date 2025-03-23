@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { ArrowUpDown, Edit, Trash } from 'lucide-react';
+import { ArrowUpDown, Edit, Eye, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -18,19 +18,26 @@ interface DataTableProps<T> {
   columns: { key: keyof T; label: string; sortable?: boolean }[];
   onEdit?: (row: T) => void;
   onDelete?: (row: T) => void;
+  onView?: (row: T) => void;
+  onOrderHistory?: (row: T) => void;
 }
 
 export function DataTable<T extends Record<string, any>>({
   data,
   columns,
   onEdit,
-  onDelete
+  onDelete,
+  onView,
+  onOrderHistory
 }: DataTableProps<T>) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sorting, setSorting] = useState<{
     key: keyof T;
     direction: 'asc' | 'desc';
-  } | null>(null);
+  } | null>({
+    key: 'id' as keyof T,
+    direction: 'asc'
+  });
   const [page, setPage] = useState(0);
   const rowsPerPage = 5;
 
@@ -112,7 +119,9 @@ export function DataTable<T extends Record<string, any>>({
                 <TableRow key={rowIndex}>
                   {columns.map(column => (
                     <TableCell key={String(column.key)}>
-                      {String(row[column.key])}
+                      {column.render
+                        ? column.render(row)
+                        : String(row[column.key])}
                     </TableCell>
                   ))}
                   <TableCell className="flex gap-2">
@@ -121,8 +130,29 @@ export function DataTable<T extends Record<string, any>>({
                         variant="outline"
                         size="sm"
                         onClick={() => onEdit(row)}
+                        className="hover:cursor-pointer"
                       >
                         <Edit size={16} />
+                      </Button>
+                    )}
+                    {onView && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onView(row)}
+                        className="hover:cursor-pointer"
+                      >
+                        <Eye size={16} />
+                      </Button>
+                    )}
+                    {onOrderHistory && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onOrderHistory(row)}
+                        className="hover:cursor-pointer"
+                      >
+                        Order History
                       </Button>
                     )}
                     {onDelete && (
@@ -130,6 +160,7 @@ export function DataTable<T extends Record<string, any>>({
                         variant="destructive"
                         size="sm"
                         onClick={() => onDelete(row)}
+                        className="hover:cursor-pointer"
                       >
                         <Trash size={16} />
                       </Button>

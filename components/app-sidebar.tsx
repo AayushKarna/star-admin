@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +11,18 @@ import {
 } from '@/components/ui/sidebar';
 import Image from 'next/image';
 import logo from '@/public/logo.png';
-import { AppleLogo, Cube } from '@phosphor-icons/react/dist/ssr';
+import {
+  AppleLogo,
+  Cube,
+  GearSix,
+  SignOut,
+  House,
+  Receipt,
+  Users,
+  Panorama
+} from '@phosphor-icons/react/dist/ssr';
+import { BadgePercent, Tags, TicketPercent } from 'lucide-react';
+// import { Users } from '@phosphor-icons/react';
 
 // This is sample data.
 const data = {
@@ -24,14 +33,64 @@ const data = {
       url: '#',
       items: [
         {
+          title: 'Home',
+          url: '/dashboard',
+          icon: <House />
+        },
+        {
+          title: 'Settings',
+          url: '/dashboard/settings',
+          icon: <GearSix />
+        },
+        {
+          title: 'Orders',
+          url: '/dashboard/orders',
+          icon: <Receipt />
+        },
+        {
           title: 'Product Category',
           url: '/dashboard/product-categories',
           icon: <Cube />
         },
         {
+          title: 'Products',
+          url: '/dashboard/products',
+          icon: <Cube />
+        },
+        {
           title: 'Brands',
-          url: '#',
+          url: '/dashboard/brands',
           icon: <AppleLogo />
+        },
+        {
+          title: 'Tags',
+          url: '/dashboard/tags',
+          icon: <Tags />
+        },
+        {
+          title: 'Flash Sales',
+          url: '/dashboard/flash-sales',
+          icon: <BadgePercent />
+        },
+        {
+          title: 'Coupons',
+          url: '/dashboard/coupons',
+          icon: <TicketPercent />
+        },
+        {
+          title: 'Customers',
+          url: '/dashboard/customers',
+          icon: <Users />
+        },
+        {
+          title: 'Banner',
+          url: '/dashboard/banner',
+          icon: <Panorama />
+        },
+        {
+          title: 'Logout',
+          url: '/auth/logout',
+          icon: <SignOut />
         }
       ]
     }
