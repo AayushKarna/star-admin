@@ -22,6 +22,8 @@ import {
   Panorama
 } from '@phosphor-icons/react/dist/ssr';
 import { BadgePercent, Tags, TicketPercent } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 // import { Users } from '@phosphor-icons/react';
 
 // This is sample data.
@@ -98,6 +100,8 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+  console.log('pathname', pathname);
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -112,10 +116,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenu>
                 {item.items.map(item => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
+                    <SidebarMenuButton asChild isActive={pathname === item.url}>
                       <div className="flex items-center gap-3">
                         {item.icon}
-                        <a href={item.url}>{item.title}</a>
+                        <Link href={item.url}>{item.title}</Link>
                       </div>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
