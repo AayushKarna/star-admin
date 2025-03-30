@@ -9,6 +9,7 @@ import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import ApiService from '@/app/utils/apiService';
 import { useParams, useRouter } from 'next/navigation';
+import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 
 interface Category {
   id: number;
@@ -26,6 +27,7 @@ export default function ProductCategories() {
 
   const { slug } = useParams();
 
+  const { setBreadcrumb } = useBreadcrumb();
   useEffect(() => {
     const fetchData = async () => {
       const response = await ApiService.get(`product-category/${slug}`);
@@ -38,7 +40,13 @@ export default function ProductCategories() {
     };
 
     fetchData();
-  }, [slug]);
+
+    setBreadcrumb([
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'Product Categories', href: '/dashboard/product-categories' },
+      { label: 'Edit Category' }
+    ]);
+  }, [slug, setBreadcrumb]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

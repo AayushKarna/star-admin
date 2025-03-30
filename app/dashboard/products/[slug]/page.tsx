@@ -22,6 +22,7 @@ import Image from 'next/image';
 import { Trash } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 
 interface Brand {
   id: number;
@@ -110,6 +111,7 @@ export default function EditProduct() {
     }));
   };
 
+  const { setBreadcrumb } = useBreadcrumb();
   useEffect(() => {
     const fetchData = async () => {
       // const response = await ApiService.get('products');
@@ -143,7 +145,13 @@ export default function EditProduct() {
     };
 
     fetchData();
-  }, [slug]);
+
+    setBreadcrumb([
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'Products', href: '/dashboard/products' },
+      { label: 'Edit Product' }
+    ]);
+  }, [slug, setBreadcrumb]);
 
   const handleFileChange = (e: React.FormEvent) => {
     const files = (e.target as HTMLInputElement).files;

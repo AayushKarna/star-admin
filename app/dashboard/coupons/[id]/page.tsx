@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import ApiService from '@/app/utils/apiService';
 import { useParams } from 'next/navigation';
 import { Textarea } from '@/components/ui/textarea';
+import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 
 interface Coupon {
   id: number;
@@ -28,6 +29,7 @@ export default function ProductCategories() {
 
   const { id } = useParams();
 
+  const { setBreadcrumb } = useBreadcrumb();
   useEffect(() => {
     const fetchData = async () => {
       const response = await ApiService.get(`coupons/${id}`);
@@ -37,10 +39,16 @@ export default function ProductCategories() {
       } else {
         setError(response.message || 'An unexpected error occurred.');
       }
+
+      setBreadcrumb([
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Coupons', href: '/dashboard/coupons' },
+        { label: 'Edit Coupon' }
+      ]);
     };
 
     fetchData();
-  }, [id]);
+  }, [id, setBreadcrumb]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

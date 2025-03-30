@@ -10,6 +10,7 @@ import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import ApiService from '@/app/utils/apiService';
 import { useRouter } from 'next/navigation';
+import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 
 interface Coupon {
   id: number;
@@ -69,9 +70,15 @@ export default function ProductCategories() {
     }
   };
 
+  const { setBreadcrumb } = useBreadcrumb();
   useEffect(() => {
     fetchData();
-  }, []);
+
+    setBreadcrumb([
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'Coupons' }
+    ]);
+  }, [setBreadcrumb]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

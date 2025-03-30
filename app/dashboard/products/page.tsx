@@ -20,6 +20,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 
 interface Brand {
   id: number;
@@ -152,9 +153,15 @@ export default function Brands() {
     }
   };
 
+  const { setBreadcrumb } = useBreadcrumb();
   useEffect(() => {
     fetchData();
-  }, []);
+
+    setBreadcrumb([
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'Products' }
+    ]);
+  }, [setBreadcrumb]);
 
   const handleFileChange = (e: React.FormEvent) => {
     const files = (e.target as HTMLInputElement).files;

@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import ApiService from '@/app/utils/apiService';
 import { useRouter } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 
 interface Product {
   id: number;
@@ -82,9 +83,15 @@ export default function ProductCategories() {
     setFilteredProducts(productResponse.data.data);
   };
 
+  const { setBreadcrumb } = useBreadcrumb();
   useEffect(() => {
     fetchData();
-  }, []);
+
+    setBreadcrumb([
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'Flash Sales' }
+    ]);
+  }, [setBreadcrumb]);
 
   const handleSearch = (value: string) => {
     setSearch(value);

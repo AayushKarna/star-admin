@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import ApiService from '@/app/utils/apiService';
 import { useParams } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 
 interface Product {
   id: number;
@@ -41,6 +42,7 @@ export default function EditFlashSale() {
 
   const { id } = useParams();
 
+  const { setBreadcrumb } = useBreadcrumb();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -62,7 +64,13 @@ export default function EditFlashSale() {
     };
 
     fetchData();
-  }, [id]);
+
+    setBreadcrumb([
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'Flash Sales', href: '/dashboard/flash-sales' },
+      { label: 'Edit Flash Sale' }
+    ]);
+  }, [id, setBreadcrumb]);
 
   const handleSearch = (value: string) => {
     setSearch(value);

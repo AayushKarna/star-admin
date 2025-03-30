@@ -10,6 +10,7 @@ import getFullUrl from '@/app/utils/getFullUrl';
 import { Button } from '@/components/ui/button';
 import { Label } from '@radix-ui/react-label';
 import { Input } from '@/components/ui/input';
+import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 
 interface Banner {
   id: number;
@@ -36,6 +37,8 @@ export default function Tag() {
   const formRef = useRef<HTMLFormElement>(null);
 
   const router = useRouter();
+
+  const { setBreadcrumb } = useBreadcrumb();
 
   const fetchData = async () => {
     const response = await ApiService.get('banner');
@@ -101,7 +104,12 @@ export default function Tag() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+
+    setBreadcrumb([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Banners' }
+    ]);
+  }, [setBreadcrumb]);
 
   return (
     <div>

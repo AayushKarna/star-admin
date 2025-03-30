@@ -10,6 +10,7 @@ import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import ApiService from '@/app/utils/apiService';
 import { useRouter } from 'next/navigation';
+import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 
 interface Brand {
   id: number;
@@ -42,9 +43,15 @@ export default function Brands() {
     }
   };
 
+  const { setBreadcrumb } = useBreadcrumb();
   useEffect(() => {
     fetchData();
-  }, []);
+
+    setBreadcrumb([
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'Brands' }
+    ]);
+  }, [setBreadcrumb]);
 
   const handleFileChange = (e: React.FormEvent) => {
     const files = (e.target as HTMLInputElement).files;

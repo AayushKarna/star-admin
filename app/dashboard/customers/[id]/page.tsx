@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import ApiService from '@/app/utils/apiService';
 import { useParams } from 'next/navigation';
 import { AlertDestructive } from '@/components/alert-destructive';
+import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 
 interface Customer {
   id: number;
@@ -21,6 +22,7 @@ export default function ProductCategories() {
 
   const { id } = useParams();
 
+  const { setBreadcrumb } = useBreadcrumb();
   useEffect(() => {
     const fetchData = async () => {
       const response = await ApiService.get(`users/${id}`);
@@ -33,7 +35,13 @@ export default function ProductCategories() {
     };
 
     fetchData();
-  }, [id]);
+
+    setBreadcrumb([
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'Customers', href: '/dashboard/customers' },
+      { label: `Customer ${id}` }
+    ]);
+  }, [id, setBreadcrumb]);
 
   return (
     <div>

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { BASE_URL } from '@/app/constants/constants';
+import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 
 interface Banner {
   id: number;
@@ -69,6 +70,7 @@ export default function ProductCategories() {
     setIsLoading(false);
   };
 
+  const { setBreadcrumb } = useBreadcrumb();
   useEffect(() => {
     const fetchData = async () => {
       const response = await ApiService.get(`banner/${id}`);
@@ -81,7 +83,13 @@ export default function ProductCategories() {
     };
 
     fetchData();
-  }, [id]);
+
+    setBreadcrumb([
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'Banner', href: '/dashboard/banner' },
+      { label: 'Edit Banner' }
+    ]);
+  }, [id, setBreadcrumb]);
 
   console.log(banner);
   return (

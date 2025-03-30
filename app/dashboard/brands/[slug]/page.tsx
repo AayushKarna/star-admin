@@ -11,6 +11,7 @@ import ApiService from '@/app/utils/apiService';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import getFullUrl from '@/app/utils/getFullUrl';
+import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 
 interface Brand {
   id: number;
@@ -29,6 +30,7 @@ export default function ProductCategories() {
 
   const { slug } = useParams();
 
+  const { setBreadcrumb } = useBreadcrumb();
   useEffect(() => {
     const fetchData = async () => {
       const response = await ApiService.get(`brands/${slug}`);
@@ -39,10 +41,16 @@ export default function ProductCategories() {
       } else {
         setError(response.message || 'An unexpected error occurred.');
       }
+
+      setBreadcrumb([
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Brands', href: '/dashboard/brands' },
+        { label: 'Edit Brand' }
+      ]);
     };
 
     fetchData();
-  }, [slug]);
+  }, [slug, setBreadcrumb]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import ApiService from '@/app/utils/apiService';
 import { useRouter } from 'next/navigation';
+import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
 
 interface Customer {
   id: number;
@@ -42,9 +43,15 @@ export default function Tag() {
     }
   };
 
+  const { setBreadcrumb } = useBreadcrumb();
   useEffect(() => {
     fetchData();
-  }, []);
+
+    setBreadcrumb([
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'Customers' }
+    ]);
+  }, [setBreadcrumb]);
 
   return (
     <div>
