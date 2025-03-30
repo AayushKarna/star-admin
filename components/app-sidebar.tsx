@@ -89,7 +89,7 @@ const data = {
         },
         {
           title: 'Logout',
-          url: '/auth/logout',
+          url: '/dashboard/logout',
           icon: <SignOut />
         }
       ]

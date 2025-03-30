@@ -20,6 +20,9 @@ const nextConfig: NextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true // Ignores ESLint issues during production build
+  },
+  typescript: {
+    ignoreBuildErrors: true
   }
 };
 

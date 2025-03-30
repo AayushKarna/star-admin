@@ -56,7 +56,7 @@ class ApiService {
 
   static async get<T = unknown>(
     resource: string,
-    sendAuthToken = false
+    sendAuthToken = true
   ): Promise<ApiResponse<T>> {
     try {
       const response = await apiClient.get<T>(
@@ -72,7 +72,7 @@ class ApiService {
   static async post<T = unknown>(
     resource: string,
     data: object | FormData,
-    sendAuthToken = false
+    sendAuthToken = true
   ): Promise<ApiResponse<T>> {
     try {
       const response = await apiClient.post<T>(
@@ -89,7 +89,7 @@ class ApiService {
   static async patch<T = unknown>(
     resource: string,
     data: object | FormData,
-    sendAuthToken = false
+    sendAuthToken = true
   ): Promise<ApiResponse<T>> {
     try {
       const response = await apiClient.patch<T>(
@@ -105,7 +105,7 @@ class ApiService {
 
   static async delete<T = unknown>(
     resource: string,
-    sendAuthToken = false
+    sendAuthToken = true
   ): Promise<ApiResponse<T>> {
     try {
       const response = await apiClient.delete<T>(

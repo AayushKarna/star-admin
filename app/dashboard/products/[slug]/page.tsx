@@ -194,7 +194,7 @@ export default function EditProduct() {
     );
     if (response.isSuccess) {
       toast.success('Product edited successfully.');
-      router.push(`/dashboard/products/${response.data.data.slug}`);
+      window.location.href = `/dashboard/products/${response.data.data.slug}`;
     } else {
       setError(response.message || 'Failed to add product.');
     }

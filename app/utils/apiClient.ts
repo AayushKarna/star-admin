@@ -8,7 +8,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  withCredentials: false
+  withCredentials: true // Ensure cookies are sent with requests
 });
 
 let isRefreshing = false;
@@ -18,14 +18,14 @@ async function refreshAccessToken() {
   try {
     isRefreshing = true;
     const response = await axios.post(`${BASE_URL}/auth/refresh`, null, {
-      withCredentials: true
+      withCredentials: true // Ensure credentials (cookies) are sent
     });
 
     const newAccessToken = response.data.accessToken;
     if (newAccessToken) {
       Cookies.set('accessToken', newAccessToken, {
-        secure: true,
-        sameSite: 'Strict'
+        secure: true, // Make sure secure flag is set
+        sameSite: 'Strict' // Adjust depending on your needs
       });
 
       refreshSubscribers.forEach(callback => callback(newAccessToken));
