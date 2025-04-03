@@ -120,7 +120,61 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+
+/* status colors */
+/* 
+  PENDING
+  PROCESSING
+  DISPATCHED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+*/
+.status {
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.status-pending {
+  background-color: #F4B400;
+  /* Yellow - Indicates awaiting action */
+  color: #FFFFFF;
+}
+
+.status-processing {
+  background-color: #4285F4;
+  /* Blue - Represents ongoing process */
+  color: #FFFFFF;
+}
+
+.status-dispatched {
+  background-color: #AB47BC;
+  /* Purple - Denotes movement but not yet completed */
+  color: #FFFFFF;
+}
+
+.status-shipped {
+  background-color: #0F9D58;
+  /* Green - Positive progress towards completion */
+  color: #FFFFFF;
+}
+
+.status-delivered {
+  background-color: #34A853;
+  /* Dark Green - Successful completion */
+  color: #FFFFFF;
+}
+
+.status-cancelled {
+  background-color: #D32F2F;
+  /* Red - Error or termination */
+  color: #FFFFFF;
 }
