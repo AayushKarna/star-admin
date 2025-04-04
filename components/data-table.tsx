@@ -36,10 +36,10 @@ export function DataTable<T extends Record<string, any>>({
     direction: 'asc' | 'desc';
   } | null>({
     key: 'id' as keyof T,
-    direction: 'asc'
+    direction: 'desc'
   });
   const [page, setPage] = useState(0);
-  const rowsPerPage = 5;
+  const rowsPerPage = 25;
 
   // Global case-insensitive search
   const filteredData = useMemo(() => {
