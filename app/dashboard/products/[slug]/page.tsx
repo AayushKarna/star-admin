@@ -123,7 +123,7 @@ export default function EditProduct() {
       ] = await Promise.all([
         ApiService.get(`products/${slug}`),
         ApiService.get('brands'),
-        ApiService.get('product-category'),
+        ApiService.get('product-category/flat-all'),
         ApiService.get('tags')
       ]);
 

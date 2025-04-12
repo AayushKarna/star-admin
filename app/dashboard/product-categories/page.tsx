@@ -11,16 +11,31 @@ import { toast } from 'sonner';
 import ApiService from '@/app/utils/apiService';
 import { useRouter } from 'next/navigation';
 import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 interface Category {
   id: number;
   name: string;
   slug: string;
+  parentId: number | null;
+  parentName?: string; // manually added for UI
+  subCategories?: Category[]; // optional for incoming server data
 }
 
-const columns: { key: keyof Category; label: string; sortable: boolean }[] = [
+const columns: {
+  key: keyof Category | 'parentName';
+  label: string;
+  sortable: boolean;
+}[] = [
   { key: 'id', label: 'ID', sortable: true },
-  { key: 'name', label: 'Name', sortable: true }
+  { key: 'name', label: 'Name', sortable: true },
+  { key: 'parentName', label: 'Parent Category', sortable: false }
 ];
 
 export default function ProductCategories() {
@@ -30,13 +45,36 @@ export default function ProductCategories() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const formRef = useRef<HTMLFormElement>(null);
-
   const router = useRouter();
 
   const fetchData = async () => {
     const response = await ApiService.get('product-category');
     if (response.isSuccess) {
-      setCategories(response.data.data);
+      const flatCategories: Category[] = [];
+
+      response.data.data.forEach(
+        (category: Category & { subCategories?: Category[] }) => {
+          flatCategories.push({
+            id: category.id,
+            name: category.name,
+            slug: category.slug,
+            parentId: category.parentId
+          });
+
+          if (category.subCategories && category.subCategories.length > 0) {
+            category.subCategories.forEach((sub: Category) => {
+              flatCategories.push({
+                id: sub.id,
+                name: sub.name,
+                slug: sub.slug,
+                parentId: sub.parentId
+              });
+            });
+          }
+        }
+      );
+
+      setCategories(flatCategories);
     } else {
       setTableError(response.message || 'An error occurred.');
     }
@@ -45,7 +83,6 @@ export default function ProductCategories() {
   const { setBreadcrumb } = useBreadcrumb();
   useEffect(() => {
     fetchData();
-
     setBreadcrumb([
       { label: 'Dashboard', href: '/dashboard' },
       { label: 'Product Categories' }
@@ -55,15 +92,21 @@ export default function ProductCategories() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    const response = await ApiService.post('product-category', e.currentTarget);
+
+    const formData = new FormData(e.currentTarget);
+    const parentId = formData.get('parentId');
+    if (parentId === '-1') formData.set('parentId', '');
+
+    const response = await ApiService.post('product-category', formData);
     if (response.isSuccess) {
       toast.success('Category added successfully.');
       if (formRef.current) formRef.current.reset();
-      setCategories([...categories, response.data.data]);
+      fetchData(); // Refresh with parentName
       setError(null);
     } else {
       setError(response.message || 'An error occurred.');
     }
+
     setIsLoading(false);
   };
 
@@ -71,7 +114,6 @@ export default function ProductCategories() {
     const confirmDelete = confirm(
       'Are you sure you want to delete this category?'
     );
-
     if (!confirmDelete) return;
 
     const response = await ApiService.delete(
@@ -96,10 +138,28 @@ export default function ProductCategories() {
         <CardContent>
           <form ref={formRef} onSubmit={handleSubmit}>
             {error && <AlertDestructive message={error} />}
-            <div className="grid gap-2 mb-4">
+            <div className="grid gap-2 mb-2">
               <Label htmlFor="name">Name</Label>
               <Input id="name" type="text" name="name" required />
             </div>
+
+            <div className="grid gap-2 mb-4">
+              <Label htmlFor="parentId">Parent Category</Label>
+              <Select name="parentId" required>
+                <SelectTrigger className="w-full" id="parentId">
+                  <SelectValue placeholder="Select Parent" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="-1">Null</SelectItem>
+                  {categories.map(category => (
+                    <SelectItem key={category.id} value={`${category.id}`}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Loading...' : 'Submit'}
             </Button>
@@ -115,11 +175,17 @@ export default function ProductCategories() {
           {tableError && <AlertDestructive message={tableError} />}
           <DataTable
             columns={columns}
-            data={categories}
-            onEdit={categories =>
-              router.push(`/dashboard/product-categories/${categories.slug}`)
+            data={categories.map(cat => {
+              const parent = categories.find(c => c.id === cat.parentId);
+              return {
+                ...cat,
+                parentName: parent ? parent.name : '—'
+              };
+            })}
+            onEdit={category =>
+              router.push(`/dashboard/product-categories/${category.slug}`)
             }
-            onDelete={categories => handleDelete(categories)}
+            onDelete={handleDelete}
           />
         </CardContent>
       </Card>

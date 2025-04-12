@@ -17,11 +17,18 @@ interface Brand {
   name: string;
   logo: string | null;
   slug: string;
+  priority: number;
 }
 
 const columns: { key: keyof Brand; label: string; sortable: boolean }[] = [
   { key: 'id', label: 'ID', sortable: true },
-  { key: 'name', label: 'Name', sortable: true }
+  { key: 'name', label: 'Name', sortable: true },
+  {
+    key: 'priority',
+    label: 'Priority',
+    sortable: true,
+    render: (row: Brand) => row.priority || 'Default'
+  }
 ];
 
 export default function Brands() {
@@ -122,6 +129,18 @@ export default function Brands() {
             <div className="grid gap-2 mb-4">
               <Label htmlFor="name">Name</Label>
               <Input id="name" type="text" name="name" required />
+            </div>
+
+            {/* priority */}
+            <div className="grid gap-2 mb-4">
+              <Label htmlFor="priority">Priority (optional)</Label>
+              <Input
+                id="priority"
+                type="number"
+                name="priority"
+                min={0}
+                step={1}
+              />
             </div>
 
             <div className="grid gap-2 mb-4">

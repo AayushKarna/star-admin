@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'logos-world.net'
+      },
+      {
+        protocol: 'https',
+        hostname: 'logos-download.com'
       }
     ]
   },

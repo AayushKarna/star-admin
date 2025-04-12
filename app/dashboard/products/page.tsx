@@ -139,7 +139,7 @@ export default function Brands() {
       await Promise.all([
         ApiService.get('products'),
         ApiService.get('brands'),
-        ApiService.get('product-category'),
+        ApiService.get('product-category/flat-all'),
         ApiService.get('tags')
       ]);
 

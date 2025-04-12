@@ -18,10 +18,10 @@ interface Brand {
   name: string;
   logo: string | null;
   slug: string;
+  priority: number;
 }
 
 export default function ProductCategories() {
-  const [name, setName] = useState<string>('');
   const [brand, setBrand] = useState<Brand | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -37,7 +37,6 @@ export default function ProductCategories() {
 
       if (response.isSuccess) {
         setBrand((response.data.data as Brand) || null);
-        setName(response.data.data.name);
       } else {
         setError(response.message || 'An unexpected error occurred.');
       }
@@ -96,53 +95,71 @@ export default function ProductCategories() {
         <CardContent>
           <form ref={formRef} onSubmit={handleSubmit}>
             {error && <AlertDestructive message={error} />}
-            <div className="grid gap-2 mb-4">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                name="name"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="grid gap-2 mb-4">
-              <Label htmlFor="logo">Logo</Label>
-              <Input
-                id="logo"
-                type="file"
-                name="logo"
-                onChange={e => {
-                  const files = (e.target as HTMLInputElement).files;
-                  if (files && files.length > 0) setFile(files[0]);
-                }}
-                className="mb-4"
-              />
+            {brand && (
+              <>
+                <div className="grid gap-2 mb-4">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    name="name"
+                    value={brand.name}
+                    onChange={e => setBrand({ ...brand, name: e.target.value })}
+                    required
+                  />
+                </div>
 
-              <div className="bg-gray-100 p-4 relative">
-                {brand?.logo ? (
-                  <>
-                    <Image
-                      src={getFullUrl(brand.logo)}
-                      alt="Brand Logo"
-                      width={300}
-                      height={300}
-                      style={{
-                        objectFit: 'contain',
-                        height: '100px',
-                        width: 'auto'
-                      }}
-                    />
-                  </>
-                ) : (
-                  <p>❌ No Image </p>
-                )}
-              </div>
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Loading...' : 'Edit'}
-            </Button>
+                <div className="grid gap-2 mb-4">
+                  <Label htmlFor="priority">Priority (optional)</Label>
+                  <Input
+                    id="priority"
+                    type="number"
+                    name="priority"
+                    value={brand.priority}
+                    onChange={e =>
+                      setBrand({ ...brand, priority: +e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="grid gap-2 mb-4">
+                  <Label htmlFor="logo">Logo</Label>
+                  <Input
+                    id="logo"
+                    type="file"
+                    name="logo"
+                    onChange={e => {
+                      const files = (e.target as HTMLInputElement).files;
+                      if (files && files.length > 0) setFile(files[0]);
+                    }}
+                    className="mb-4"
+                  />
+
+                  <div className="bg-gray-100 p-4 relative">
+                    {brand?.logo ? (
+                      <>
+                        <Image
+                          src={getFullUrl(brand.logo)}
+                          alt="Brand Logo"
+                          width={300}
+                          height={300}
+                          style={{
+                            objectFit: 'contain',
+                            height: '100px',
+                            width: 'auto'
+                          }}
+                        />
+                      </>
+                    ) : (
+                      <p>❌ No Image </p>
+                    )}
+                  </div>
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? 'Loading...' : 'Edit'}
+                </Button>
+              </>
+            )}
           </form>
         </CardContent>
       </Card>
