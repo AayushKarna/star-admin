@@ -165,7 +165,7 @@ export default function EditFlashSale() {
                 <Input
                   id="discountPercentage"
                   type="number"
-                  min={1}
+                  min={0}
                   max={100}
                   step={0.01}
                   name="discountPercentage"
