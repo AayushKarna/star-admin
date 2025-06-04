@@ -26,6 +26,7 @@ interface Category {
   parentId: number | null;
   parentName?: string; // manually added for UI
   subCategories?: Category[]; // optional for incoming server data
+  icon?: string;
 }
 
 const columns: {
@@ -43,6 +44,7 @@ export default function ProductCategories() {
   const [tableError, setTableError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [file, setFile] = useState<File>();
 
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
@@ -89,11 +91,33 @@ export default function ProductCategories() {
     ]);
   }, [setBreadcrumb]);
 
+  const handleFileChange = (e: React.FormEvent) => {
+    const files = (e.target as HTMLInputElement).files;
+
+    if (files && files.length > 0) {
+      setFile(files[0]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
+
+    if (file) {
+      const uploadResponse = await ApiService.uploadFile(file);
+      if (!uploadResponse.isSuccess) {
+        setError(uploadResponse.message || 'File upload failed.');
+        setIsLoading(false);
+        return;
+      }
+
+      formData.set('icon', uploadResponse.data.fileUrls[0]);
+    } else {
+      formData.delete('icon');
+    }
+
     const parentId = formData.get('parentId');
     if (parentId === '-1') formData.set('parentId', '');
 
@@ -141,6 +165,16 @@ export default function ProductCategories() {
             <div className="grid gap-2 mb-2">
               <Label htmlFor="name">Name</Label>
               <Input id="name" type="text" name="name" required />
+            </div>
+
+            <div className="grid gap-2 mb-4">
+              <Label htmlFor="files">Icon</Label>
+              <Input
+                id="files"
+                type="file"
+                name="files"
+                onChange={e => handleFileChange(e)}
+              />
             </div>
 
             <div className="grid gap-2 mb-4">
