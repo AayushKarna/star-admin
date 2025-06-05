@@ -26,6 +26,7 @@ interface Category {
   slug: string;
   parentId: number | null;
   icon?: string;
+  priority?: number;
 }
 
 export default function ProductCategories() {
@@ -192,6 +193,28 @@ export default function ProductCategories() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="grid gap-2 mb-4">
+                  <Label htmlFor="priority">Priority (optional)</Label>
+                  <Input
+                    id="priority"
+                    type="number"
+                    name="priority"
+                    value={category.priority || ''}
+                    onChange={e =>
+                      setCategory({
+                        ...category,
+                        priority: e.target.value
+                          ? parseInt(e.target.value)
+                          : undefined
+                      })
+                    }
+                    required={false}
+                    min={0}
+                    step={1}
+                  />
+                </div>
+
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Loading...' : 'Edit'}
                 </Button>

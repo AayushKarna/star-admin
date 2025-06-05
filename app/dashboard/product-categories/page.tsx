@@ -194,6 +194,17 @@ export default function ProductCategories() {
               </Select>
             </div>
 
+            <div className="grid gap-2 mb-4">
+              <Label htmlFor="priority">Priority (optional)</Label>
+              <Input
+                id="priority"
+                type="number"
+                name="priority"
+                min={0}
+                step={1}
+              />
+            </div>
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Loading...' : 'Submit'}
             </Button>
