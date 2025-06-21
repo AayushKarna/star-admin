@@ -1,42 +1,42 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useState, useEffect } from 'react';
-import ApiService from '@/app/utils/apiService';
-import { useParams } from 'next/navigation';
-import { AlertDestructive } from '@/components/alert-destructive';
-import { useBreadcrumb } from '@/contexts/BreadcrumbContext';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect, ReactEventHandler } from "react";
+import ApiService from "@/app/utils/apiService";
+import { useParams } from "next/navigation";
+import { AlertDestructive } from "@/components/alert-destructive";
+import { useBreadcrumb } from "@/contexts/BreadcrumbContext";
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
-} from '@/components/ui/table';
-import { Label } from '@radix-ui/react-label';
+  TableRow,
+} from "@/components/ui/table";
+import { Label } from "@radix-ui/react-label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 enum PaymentMethod {
-  CASH_ON_DELIVERY = 'CASH_ON_DELIVERY',
-  KHALTI = 'KHALTI'
+  CASH_ON_DELIVERY = "CASH_ON_DELIVERY",
+  KHALTI = "KHALTI",
 }
 
 enum OrderStatus {
-  PENDING = 'PENDING',
-  PROCESSING = 'PROCESSING',
-  DISPATCHED = 'DISPATCHED',
-  SHIPPED = 'SHIPPED',
-  DELIVERED = 'DELIVERED',
-  CANCELLED = 'CANCELLED'
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  DISPATCHED = "DISPATCHED",
+  SHIPPED = "SHIPPED",
+  DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
 }
 
 interface Coupon {
@@ -108,12 +108,60 @@ export default function ProductCategories() {
   const [error, setError] = useState<string | null>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [status, setStatus] = useState<OrderStatus>(OrderStatus.PENDING);
-  const [paymentStatus, setPaymentStatus] = useState<string>('PAID');
+  const [paymentStatus, setPaymentStatus] = useState<string>("PAID");
   const [loading, setLoading] = useState<boolean>(false);
 
   const { id } = useParams();
 
   const { setBreadcrumb } = useBreadcrumb();
+
+  const generateReceipt = async (): Promise<void> => {
+    const receiptHtml = `
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial; }
+        .header { float: left; width: 50%; }
+        .total { float: right; width: 50%; text-align: right; }
+        table { width: 100%; border-collapse: collapse; margin-top: 40px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+      </style>
+    </head>
+    <body>
+      <div class="header">My Shop</div>
+      <div class="total">Total: $100</div>
+      <table>
+        <thead><tr><th>Item</th><th>Price</th></tr></thead>
+        <tbody><tr><td>Product A</td><td>$100</td></tr></tbody>
+      </table>
+    </body>
+    </html>
+  `;
+
+    try {
+      const response = await fetch("./generate-receipt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ html: receiptHtml }),
+      });
+
+      if (!response.ok) {
+        throw new Error("PDF generation failed");
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "receipt.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Download failed:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const response = await ApiService.get(`orders/${id}`);
@@ -124,18 +172,18 @@ export default function ProductCategories() {
         setOrder(response.data.order);
         setCustomer(user.data.data);
         setStatus(response.data.order.status as OrderStatus);
-        setPaymentStatus(response.data.order.isPaid ? 'PAID' : 'UNPAID');
+        setPaymentStatus(response.data.order.isPaid ? "PAID" : "UNPAID");
       } else {
-        setError(response.message || 'An unexpected error occurred.');
+        setError(response.message || "An unexpected error occurred.");
       }
     };
 
     fetchData();
 
     setBreadcrumb([
-      { label: 'Dashboard', href: '/dashboard' },
-      { label: 'Orders', href: '/dashboard/orders' },
-      { label: `Order # ${id}` }
+      { label: "Dashboard", href: "/dashboard" },
+      { label: "Orders", href: "/dashboard/orders" },
+      { label: `Order # ${id}` },
     ]);
   }, [id, setBreadcrumb]);
 
@@ -146,22 +194,22 @@ export default function ProductCategories() {
 
     const response = await ApiService.patch(`orders/${id}`, {
       status: status,
-      isPaid: paymentStatus === 'PAID' ? true : false
+      isPaid: paymentStatus === "PAID" ? true : false,
     });
 
     if (response.isSuccess) {
       setStatusError(null);
-      setOrder(prev => ({
+      setOrder((prev) => ({
         ...prev!,
         status: status,
-        isPaid: paymentStatus === 'PAID' ? true : false
+        isPaid: paymentStatus === "PAID" ? true : false,
       }));
 
-      toast.success('Order status updated successfully!');
+      toast.success("Order status updated successfully!");
 
       setLoading(false);
     } else {
-      setStatusError('An unexpected error occurred.');
+      setStatusError("An unexpected error occurred.");
 
       setLoading(false);
     }
@@ -185,14 +233,14 @@ export default function ProductCategories() {
                 </p>
 
                 <p>
-                  <strong>Payment Method: </strong>{' '}
+                  <strong>Payment Method: </strong>{" "}
                   {order.paymentMethod === PaymentMethod.CASH_ON_DELIVERY
-                    ? '💵 Cash on Delivery'
-                    : '🌐 Khalti'}
+                    ? "💵 Cash on Delivery"
+                    : "🌐 Khalti"}
                 </p>
 
                 <p>
-                  <strong>Status: </strong>{' '}
+                  <strong>Status: </strong>{" "}
                   <span
                     className={`status status-${order.status.toLocaleLowerCase()}`}
                   >
@@ -202,27 +250,27 @@ export default function ProductCategories() {
                 </p>
 
                 <p>
-                  <strong>Is Paid: </strong> {order.isPaid ? '✅ Yes' : '❌ No'}
+                  <strong>Is Paid: </strong> {order.isPaid ? "✅ Yes" : "❌ No"}
                 </p>
 
                 <p>
-                  <strong>Total Price: </strong> Rs.{' '}
-                  {Intl.NumberFormat('en-us').format(order.totalPrice)}
+                  <strong>Total Price: </strong> Rs.{" "}
+                  {Intl.NumberFormat("en-us").format(order.totalPrice)}
                 </p>
 
                 <p>
-                  <strong>Created At: </strong>{' '}
+                  <strong>Created At: </strong>{" "}
                   {new Date(order.createdAt)
-                    .toLocaleString('en-US', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      second: '2-digit',
-                      hour12: true
+                    .toLocaleString("en-US", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                      hour12: true,
                     })
-                    .replace(/(\d+)\/(\d+)\/(\d+),/, '$3-$1-$2')}
+                    .replace(/(\d+)\/(\d+)\/(\d+),/, "$3-$1-$2")}
                 </p>
               </div>
             )}
@@ -254,18 +302,18 @@ export default function ProductCategories() {
                 </p>
 
                 <p>
-                  <strong>Created At: </strong>{' '}
+                  <strong>Created At: </strong>{" "}
                   {new Date(order.createdAt)
-                    .toLocaleString('en-US', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      second: '2-digit',
-                      hour12: true
+                    .toLocaleString("en-US", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                      hour12: true,
                     })
-                    .replace(/(\d+)\/(\d+)\/(\d+),/, '$3-$1-$2')}
+                    .replace(/(\d+)\/(\d+)\/(\d+),/, "$3-$1-$2")}
                 </p>
               </div>
             )}
@@ -297,18 +345,18 @@ export default function ProductCategories() {
                 </p>
 
                 <p>
-                  <strong>Created At: </strong>{' '}
+                  <strong>Created At: </strong>{" "}
                   {new Date(customer.createdAt)
-                    .toLocaleString('en-US', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      second: '2-digit',
-                      hour12: true
+                    .toLocaleString("en-US", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                      hour12: true,
                     })
-                    .replace(/(\d+)\/(\d+)\/(\d+),/, '$3-$1-$2')}
+                    .replace(/(\d+)\/(\d+)\/(\d+),/, "$3-$1-$2")}
                 </p>
               </div>
             )}
@@ -334,38 +382,38 @@ export default function ProductCategories() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {order.items.map(item => (
+                    {order.items.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell>{item.productName}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
                         <TableCell>
-                          Rs.{' '}
-                          {Intl.NumberFormat('en-us').format(item.totalPrice)}
+                          Rs.{" "}
+                          {Intl.NumberFormat("en-us").format(item.totalPrice)}
                         </TableCell>
                       </TableRow>
                     ))}
                     <TableRow>
                       <TableCell colSpan={2}>Total</TableCell>
                       <TableCell>
-                        Rs. {Intl.NumberFormat('en-us').format(order.subTotal)}
+                        Rs. {Intl.NumberFormat("en-us").format(order.subTotal)}
                       </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell colSpan={2}>Discount</TableCell>
                       <TableCell>
                         {order.couponDiscount > 0
-                          ? `Rs. ${Intl.NumberFormat('en-us').format(
+                          ? `Rs. ${Intl.NumberFormat("en-us").format(
                               order.couponDiscount
                             )}`
-                          : '---'}
+                          : "---"}
                       </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell colSpan={2}>Shipping Charge</TableCell>
                       <TableCell>
                         {order.shippingCharge === 0
-                          ? 'Free'
-                          : `Rs. ${Intl.NumberFormat('en-us').format(
+                          ? "Free"
+                          : `Rs. ${Intl.NumberFormat("en-us").format(
                               order.shippingCharge
                             )}`}
                       </TableCell>
@@ -374,8 +422,8 @@ export default function ProductCategories() {
                       <TableCell colSpan={2}>Grand Total</TableCell>
                       <TableCell>
                         <strong>
-                          Rs.{' '}
-                          {Intl.NumberFormat('en-us').format(order.totalPrice)}
+                          Rs.{" "}
+                          {Intl.NumberFormat("en-us").format(order.totalPrice)}
                         </strong>
                       </TableCell>
                     </TableRow>
@@ -394,13 +442,13 @@ export default function ProductCategories() {
           <CardContent>
             {statusError && <AlertDestructive message={statusError} />}
             {order && (
-              <form className="grid gap-4" onSubmit={handleStatusChange}>
+              <form className="grid gap-4 mb-4" onSubmit={handleStatusChange}>
                 <div className="grid gap-2">
                   <Label htmlFor="orderStatus">Order Status</Label>
                   <Select
                     name="orderStatus"
                     value={status}
-                    onValueChange={value => {
+                    onValueChange={(value) => {
                       setStatus(value as OrderStatus);
                     }}
                     required
@@ -424,7 +472,7 @@ export default function ProductCategories() {
                   <Select
                     name="paymentStatus"
                     value={paymentStatus}
-                    onValueChange={value => {
+                    onValueChange={(value) => {
                       setPaymentStatus(value);
                     }}
                     required
@@ -439,11 +487,23 @@ export default function ProductCategories() {
                   </Select>
                 </div>
 
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Submitting...' : 'Update Order Status'}
+                <Button
+                  type="submit"
+                  className="cursor-pointer"
+                  disabled={loading}
+                >
+                  {loading ? "Submitting..." : "Update Order Status"}
                 </Button>
               </form>
             )}
+
+            <Button
+              type="button"
+              className="w-full bg-gray-200 cursor-pointer text-black hover:bg-gray-300"
+              onClick={generateReceipt}
+            >
+              Download Receipt
+            </Button>
           </CardContent>
         </Card>
       </div>
